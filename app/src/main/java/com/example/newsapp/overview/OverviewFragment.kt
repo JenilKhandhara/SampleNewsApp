@@ -2,15 +2,15 @@ package com.example.newsapp.overview
 
 import androidx.fragment.app.viewModels
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.example.newsapp.R
-import com.example.newsapp.data.NewsApiState
+import com.example.newsapp.data.Resource
 import com.example.newsapp.databinding.FragmentOverviewBinding
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class OverviewFragment : Fragment() {
@@ -39,16 +39,17 @@ class OverviewFragment : Fragment() {
         lifecycleScope.launch {
             viewModel.newsState.collect {
                 val statusImageView = binding.statusImage
+                Log.d("data","$it")
                 when (it.status) {
-                    NewsApiState.Status.LOADING -> {
+                    Resource.Status.LOADING -> {
                         statusImageView.visibility = View.VISIBLE
                         statusImageView.setImageResource(R.drawable.loading_animation)
                     }
-                    NewsApiState.Status.ERROR -> {
+                    Resource.Status.ERROR -> {
                         statusImageView.visibility = View.VISIBLE
                         statusImageView.setImageResource(R.drawable.ic_connection_error)
                     }
-                    NewsApiState.Status.SUCCESS -> {
+                    Resource.Status.SUCCESS -> {
                         statusImageView.visibility = View.GONE
                         adapter.submitList(it.data)
                     }
