@@ -4,13 +4,15 @@ import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.example.newsapp.DetailActivity
+import com.example.newsapp.R
 import com.example.newsapp.data.News
 import com.example.newsapp.databinding.ItemLayoutBinding
-import kotlinx.coroutines.NonDisposableHandle.parent
 
 class NewsAdapter :
     ListAdapter<News,
@@ -31,10 +33,9 @@ class NewsAdapter :
         ItemLayoutBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(News: News) {
-            binding.news = News
-            binding.executePendingBindings()
-        }
+        var newsImage = binding.image
+        var newsTitle = binding.title
+        var newsDescription = binding.description
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsViewHolder {
@@ -43,7 +44,15 @@ class NewsAdapter :
 
     override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
         val news = getItem(position)
-        holder.bind(news)
+        holder.newsTitle.text = news.title
+        holder.newsDescription.text = news.description
+        news.urlToImage?.let {
+            val imgUri = news.urlToImage.toUri().buildUpon().scheme("https").build()
+            holder.newsImage.load(imgUri) {
+                placeholder(R.drawable.loading_animation)
+                error(R.drawable.ic_broken_image)
+            }
+        }
         holder.itemView.setOnClickListener{
             val intent = Intent(holder.itemView.context, DetailActivity::class.java)
             intent.putExtra("URL", news.url)
