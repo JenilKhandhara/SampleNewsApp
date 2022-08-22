@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.newsapp.data.News
 import com.example.newsapp.data.NewsApi
+import com.example.newsapp.data.NewsApiState
 import com.example.newsapp.repository.NewsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,11 +17,8 @@ import kotlinx.coroutines.launch
 
 class OverviewViewModel : ViewModel() {
 
-    enum class NewsApiStatus { LOADING, ERROR, DONE }
-    private val _status = MutableStateFlow(NewsApiStatus.LOADING)
-    val status: StateFlow<NewsApiStatus> = _status
-    private val _news = MutableStateFlow(listOf<News>())
-    val news: StateFlow<List<News>> = _news
+    private val _newsState = MutableStateFlow(NewsApiState(NewsApiState.Status.LOADING,listOf<News>(),""))
+    val newsState:  StateFlow<NewsApiState<List<News>>> = _newsState
 
     private val repository = NewsRepository(NewsApi.retrofitService)
 
@@ -30,16 +28,14 @@ class OverviewViewModel : ViewModel() {
 
     private fun getNews() {
 
-        _status.value = NewsApiStatus.LOADING
+        _newsState.value = NewsApiState.loading()
         viewModelScope.launch {
             repository.getNews()
                 .catch {
-                    _status.value = NewsApiStatus.ERROR
-                    _news.value = listOf()
+                    _newsState.value = NewsApiState.error(it.message.toString())
                 }
                 .collect{
-                    _news.value = NewsApi.retrofitService.getNews().articles
-                    _status.value = NewsApiStatus.DONE
+                    _newsState.value = NewsApiState.success(it.data!!.articles)
                 }
         }
     }

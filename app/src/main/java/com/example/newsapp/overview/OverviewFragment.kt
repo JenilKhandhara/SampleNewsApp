@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.example.newsapp.R
+import com.example.newsapp.data.NewsApiState
 import com.example.newsapp.databinding.FragmentOverviewBinding
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -16,7 +17,7 @@ class OverviewFragment : Fragment() {
 
     private val viewModel: OverviewViewModel by viewModels()
     private lateinit var binding: FragmentOverviewBinding
-    private  val adapter: NewsAdapter = NewsAdapter()
+    private val adapter: NewsAdapter = NewsAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,28 +37,23 @@ class OverviewFragment : Fragment() {
 
     private fun newsConsumer() {
         lifecycleScope.launch {
-            viewModel.status.collect{
+            viewModel.newsState.collect {
                 val statusImageView = binding.statusImage
-                when (it) {
-                    OverviewViewModel.NewsApiStatus.LOADING -> {
+                when (it.status) {
+                    NewsApiState.Status.LOADING -> {
                         statusImageView.visibility = View.VISIBLE
                         statusImageView.setImageResource(R.drawable.loading_animation)
                     }
-                    OverviewViewModel.NewsApiStatus.ERROR -> {
+                    NewsApiState.Status.ERROR -> {
                         statusImageView.visibility = View.VISIBLE
                         statusImageView.setImageResource(R.drawable.ic_connection_error)
                     }
-                    OverviewViewModel.NewsApiStatus.DONE -> {
+                    NewsApiState.Status.SUCCESS -> {
                         statusImageView.visibility = View.GONE
+                        adapter.submitList(it.data)
                     }
                 }
             }
         }
-        lifecycleScope.launch {
-            viewModel.news.collect{
-                adapter.submitList(it)
-            }
-        }
     }
-
 }
