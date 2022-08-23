@@ -1,6 +1,7 @@
 package com.example.newsapp.overview
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -15,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class OverviewViewModel(application: Application) : AndroidViewModel(application) {
@@ -33,9 +35,11 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch(Dispatchers.IO) {
             repository.getNews()
                 .catch {
+                    Log.d("data","$it")
                     _newsState.value = Resource.error(it.message.toString())
                 }
                 .collect{
+                    Log.d("data2", "$it")
                     _newsState.value = Resource.success(it.data)
                 }
         }
