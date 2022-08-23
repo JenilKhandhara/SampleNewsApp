@@ -11,6 +11,8 @@ import androidx.lifecycle.lifecycleScope
 import com.example.newsapp.R
 import com.example.newsapp.data.Resource
 import com.example.newsapp.databinding.FragmentOverviewBinding
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class OverviewFragment : Fragment() {
@@ -37,7 +39,7 @@ class OverviewFragment : Fragment() {
 
     private fun newsConsumer() {
         lifecycleScope.launch {
-            viewModel.newsState.collect {
+            viewModel.store.stateFlow.map { it.news }.distinctUntilChanged().collect {
                 val statusImageView = binding.statusImage
                 when (it.status) {
                     Resource.Status.LOADING -> {
