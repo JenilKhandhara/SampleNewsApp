@@ -35,11 +35,9 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch(Dispatchers.IO) {
             repository.getNews()
                 .catch {
-                    Log.d("data","$it")
                     _newsState.value = Resource.error(it.message.toString())
                 }
                 .collect{
-                    Log.d("data2", "$it")
                     _newsState.value = Resource.success(it.data)
                 }
         }

@@ -18,7 +18,6 @@ class FetchNewsWorker (context: Context, params: WorkerParameters) : CoroutineWo
         val repository = NewsRepository(database)
         try {
             repository.refreshNews()
-            Log.d("WorkManager", "Refreshing data")
         }
         catch (e: HttpException) {
             return Result.retry()

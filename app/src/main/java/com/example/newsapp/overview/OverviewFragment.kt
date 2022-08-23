@@ -39,7 +39,6 @@ class OverviewFragment : Fragment() {
         lifecycleScope.launch {
             viewModel.newsState.collect {
                 val statusImageView = binding.statusImage
-                Log.d("data","$it")
                 when (it.status) {
                     Resource.Status.LOADING -> {
                         statusImageView.visibility = View.VISIBLE
