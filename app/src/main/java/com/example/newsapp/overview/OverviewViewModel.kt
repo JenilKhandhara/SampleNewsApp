@@ -1,6 +1,7 @@
 package com.example.newsapp.overview
 
 import android.app.Application
+import android.provider.SyncStateContract.Helpers.update
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
@@ -34,14 +35,14 @@ class OverviewViewModel(application: Application) :
         viewModelScope.launch(Dispatchers.IO) {
             repository.getNews()
                 .catch {
-                    store.update { applicationState ->
+                    store.reducer.update { applicationState ->
                         return@update applicationState.copy(
                             news = Resource.error(it.message.toString())
                         )
                     }
                 }
                 .collect {
-                    store.update { applicationState ->
+                    store.reducer.update { applicationState ->
                         return@update applicationState.copy(
                             news = Resource.success(it.data)
                         )

@@ -41,18 +41,28 @@ class OverviewFragment : Fragment() {
         lifecycleScope.launch {
             viewModel.store.stateFlow.map { it.news }.distinctUntilChanged().collect {
                 val statusImageView = binding.statusImage
+                val statusTextView = binding.statusText
                 when (it.status) {
                     Resource.Status.LOADING -> {
+                        statusTextView.visibility = View.GONE
                         statusImageView.visibility = View.VISIBLE
                         statusImageView.setImageResource(R.drawable.loading_animation)
                     }
                     Resource.Status.ERROR -> {
-                        statusImageView.visibility = View.VISIBLE
-                        statusImageView.setImageResource(R.drawable.ic_connection_error)
+                        statusImageView.visibility = View.GONE
+                        statusTextView.visibility = View.VISIBLE
+                        statusTextView.text = getString(R.string.news_error)
                     }
                     Resource.Status.SUCCESS -> {
                         statusImageView.visibility = View.GONE
-                        adapter.submitList(it.data)
+                        statusTextView.visibility = View.GONE
+                        if(it.data.isNullOrEmpty()) {
+                            statusTextView.visibility = View.VISIBLE
+                             statusTextView.text = getString(R.string.no_internet)
+                        }
+                        else {
+                            adapter.submitList(it.data)
+                        }
                     }
                 }
             }
